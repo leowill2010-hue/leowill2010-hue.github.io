@@ -27,8 +27,8 @@ async function buscarTodosImoveis() {
     }
   });
   if (!res.ok) {
-    console.error('Erro ao buscar imóveis:', await res.text());
-    return [];
+    const erro = await res.text();
+    console.log(`❌ EmailJS erro ${res.status}: ${erro}`);
   }
   return await res.json();
 }
