@@ -61,6 +61,10 @@ async function enviarEmail(para, assunto, nomeLocador, mensagem) {
       }
     })
   });
+   if (!res.ok) {
+    const erro = await res.text();
+    console.log(`❌ EmailJS erro ${res.status}: ${erro}`);
+  }
   return res.ok;
 }
 
