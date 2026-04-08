@@ -3,6 +3,7 @@ const SB_KEY = process.env.SUPABASE_SERVICE_KEY;
 const EJS_SERVICE = 'service_k1fjrru';
 const EJS_TEMPLATE = 'template_745dfn3';
 const EJS_KEY = '5UAAGnPisPa866ebZ';
+const EJS_PRIVATE_KEY = process.env.EMAILJS_PRIVATE_KEY;
 
 async function fetch(...args) {
   const { default: f } = await import('node-fetch');
@@ -53,6 +54,7 @@ async function enviarEmail(para, assunto, nomeLocador, mensagem) {
       service_id: EJS_SERVICE,
       template_id: EJS_TEMPLATE,
       user_id: EJS_KEY,
+      accessToken: EJS_PRIVATE_KEY,
       template_params: {
         assunto,
         nome_locador: nomeLocador,
