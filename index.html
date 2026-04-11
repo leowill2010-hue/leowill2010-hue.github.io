@@ -1125,7 +1125,7 @@ function saveStep() {
   const g = id => { const e=document.getElementById(id); return e?e.value:''; };
   if(step===0){ fd.tipo=g('f-tipo'); fd.endereco=g('f-end'); fd.comp=g('f-comp'); fd.area=g('f-area'); fd.obs_im=g('f-obs-im'); }
   if(step===1){ fd.inquilino=g('f-inq'); fd.cpf=g('f-cpf'); fd.tel=g('f-tel'); fd.email=g('f-email'); fd.inicio=g('f-inicio'); fd.fim=g('f-fim'); }
-  if(step===2){ fd.valor=g('f-valor'); fd.dia=g('f-dia'); fd.forma=g('f-forma'); fd.indice=g('f-indice'); fd.cond=document.getElementById('f-tem-cond')?.checked?(g('f-cond')||'0'):'0'; fd.iptu=g('f-iptu'); }
+  if(step===2){ fd.valor=g('f-valor'); fd.dia=g('f-dia'); fd.forma=g('f-forma'); fd.indice=g('f-indice'); fd.cond=g('f-cond'); fd.iptu=g('f-iptu'); }
 }
 function nextStep() { saveStep(); step++; renderStepBar(); renderStepContent(); if(step===3) setTimeout(showAITip,600); }
 function prevStep() { step--; renderStepBar(); renderStepContent(); }
@@ -1163,7 +1163,7 @@ function renderStepContent() {
       <div class="field"><label>Dia de vencimento</label><input id="f-dia" type="number" min="1" max="28" placeholder="5" value="${fd.dia||''}"></div>
       <div class="field"><label>Forma de pagamento</label><select id="f-forma"><option>PIX</option><option>Boleto</option><option>TED</option><option>Depósito em conta</option></select></div>
       <div class="field"><label>Índice de reajuste anual</label><select id="f-indice"><option>IGPM</option><option>IPCA</option><option>INPC</option><option>Fixo</option></select></div>
-      <div class="field form-full">   <label>Condomínio</label>   <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">     <input type="checkbox" id="f-tem-cond" ${(fd.cond&&fd.cond>0)?'checked':''} onchange="document.getElementById('f-cond-wrap').style.display=this.checked?'block':'none'" style="width:auto;margin:0">     <span style="font-size:13px;color:var(--text)">Possui condomínio</span>   </div>   <div id="f-cond-wrap" style="display:${(fd.cond&&fd.cond>0)?'block':'none'}">     <input id="f-cond" type="number" placeholder="Valor mensal (R$)" value="${fd.cond||''}">   </div> </div>
+      <div class="field"><label>Condomínio mensal (R$)</label><input id="f-cond" placeholder="0" value="${fd.cond||''}"></div>
       <div class="field"><label>IPTU mensal (R$)</label><input id="f-iptu" placeholder="0" value="${fd.iptu||''}"></div>
       <div class="form-full" style="display:flex;justify-content:space-between;gap:10px;margin-top:6px">
         <button class="btn" onclick="prevStep()">← Voltar</button>
@@ -2050,7 +2050,7 @@ function openModal(id) {
         <option ${v.status==='atrasado'?'selected':''} value="atrasado">Atrasado</option>
         <option ${v.status==='vago'?'selected':''} value="vago">Vago</option>
       </select></div>
-      <div class="field form-full">   <label>Condomínio</label>   <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">     <input type="checkbox" id="m-tem-cond" ${(v.cond&&v.cond>0)?'checked':''} onchange="document.getElementById('m-cond-wrap').style.display=this.checked?'block':'none'" style="width:auto;margin:0">     <span style="font-size:13px;color:var(--text)">Possui condomínio</span>   </div>   <div id="m-cond-wrap" style="display:${(v.cond&&v.cond>0)?'block':'none'}">     <input id="m-cond" type="number" placeholder="Valor mensal (R$)" value="${v.cond||''}">   </div> </div>
+      <div class="field"><label>Condomínio mensal (R$)</label><input id="m-cond" type="number" placeholder="0" value="${v.cond||''}"></div>
       <div class="field"><label>IPTU mensal (R$)</label><input id="m-iptu" type="number" placeholder="0" value="${v.iptu||''}"></div>
     </div>
 
@@ -2086,7 +2086,7 @@ async function salvarModal(id) {
     valor: parseFloat((g('m-valor')||'0').replace(/\./g,'').replace(',','.'))||0,
     dia: parseInt(g('m-dia'))||5,
     forma: g('m-forma'), indice: g('m-indice'), status: g('m-status'),
-    cond: document.getElementById('m-tem-cond')?.checked ? (parseInt(g('m-cond'))||0) : 0, iptu: parseInt(g('m-iptu'))||0
+    cond: parseInt(g('m-cond'))||0, iptu: parseInt(g('m-iptu'))||0
   };
 
   if (id) {
