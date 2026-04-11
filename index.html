@@ -1147,7 +1147,7 @@ function renderStepContent() {
   if(step===1) el.innerHTML=`
     <div class="form-grid">
       <div class="field"><label>Nome completo do inquilino</label><input id="f-inq" placeholder="Nome completo" value="${fd.inquilino||''}"></div>
-      <div class="field"><label>CPF</label><input id="f-cpf" placeholder="000.000.000-00" value="${fd.cpf||''}"></div>
+      <div class="field">   <label>Tipo de documento</label>   <select id="f-tipo-doc" onchange="document.getElementById('f-cpf').placeholder=this.value==='CPF'?'000.000.000-00':'00.000.000/0001-00'">     <option ${(!fd.cpf||fd.cpf.length<=14)?'selected':''}>CPF</option>     <option ${(fd.cpf&&fd.cpf.length>14)?'selected':''}>CNPJ</option>   </select> </div> <div class="field"><label>CPF / CNPJ</label><input id="f-cpf" placeholder="000.000.000-00" value="${fd.cpf||''}"></div>
       <div class="field"><label>Telefone / WhatsApp</label><input id="f-tel" placeholder="(71) 99999-9999" value="${fd.tel||''}"></div>
       <div class="field"><label>E-mail</label><input id="f-email" type="email" placeholder="email@exemplo.com" value="${fd.email||''}"></div>
       <div class="field"><label>Início do contrato</label><input id="f-inicio" type="date" value="${fd.inicio||todayISO()}"></div>
@@ -2021,7 +2021,7 @@ function openModal(id) {
     <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Inquilino</div>
     <div class="form-grid" style="margin-bottom:16px">
       <div class="field"><label>Nome completo</label><input id="m-inq" placeholder="Nome do inquilino" value="${v.inquilino||''}"></div>
-      <div class="field"><label>CPF</label><input id="m-cpf" placeholder="000.000.000-00" value="${v.cpf||''}"></div>
+      <div class="field">   <label>Tipo de documento</label>   <select id="m-tipo-doc" onchange="document.getElementById('m-cpf').placeholder=this.value==='CPF'?'000.000.000-00':'00.000.000/0001-00'">     <option ${(!v.cpf||v.cpf.length<=14)?'selected':''}>CPF</option>     <option ${(v.cpf&&v.cpf.length>14)?'selected':''}>CNPJ</option>   </select> </div> <div class="field"><label>CPF / CNPJ</label><input id="m-cpf" placeholder="000.000.000-00" value="${v.cpf||''}"></div>
       <div class="field"><label>Telefone / WhatsApp</label><input id="m-tel" placeholder="(71) 99999-9999" value="${v.tel||''}"></div>
       <div class="field"><label>E-mail</label><input id="m-email" type="email" placeholder="email@exemplo.com" value="${v.email||''}"></div>
       <div class="field"><label>Início do contrato</label><input id="m-inicio" type="date" value="${v.inicio||''}"></div>
