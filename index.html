@@ -826,9 +826,9 @@ async function loadDB() {
       createdAt: r.created_at
     }));
     db.arquivos = (arquivos||[]).map(r => ({
-      id: r.id, nome: r.nome, tipo: r.tipo, pastaId: r.pasta_id,
-      createdAt: r.created_at
-    }));
+  id: r.id, nome: r.nome, tipo: r.tipo, pastaId: r.pasta_id,
+  createdAt: r.created_at, url: r.url || null
+}));
     hideCloudStatus();
   } catch(e) {
     console.error('Erro ao carregar dados:', e);
@@ -1372,6 +1372,7 @@ function renderDocFolder(parentId) {
         <div class="doc-name">${arq.nome}</div>
         <div class="doc-meta">${arq.tipo} · ${arq.createdAt}</div>
       </div>
+      ${arq.url ? `<a href="${arq.url}" target="_blank" class="btn sm" style="flex-shrink:0">Baixar</a>` : ''}
       <button class="btn sm danger" onclick="excluirArquivo('${arq.id}')" style="padding:5px 8px;flex-shrink:0"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3h10M4 3V2h4v1M9 3l-.7 7H3.7L3 3"/></svg></button>
     </div>`;
   });
