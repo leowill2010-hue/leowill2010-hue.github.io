@@ -688,7 +688,7 @@
 const SB_URL = 'https://qfeebxwjjzdcxeycleik.supabase.co';
 const SB_KEY = 'sb_publishable_t6gMCBwAzdLpgJ6LCFFzBQ_sjnjgBDd';
 let currentUser = null;
-let db = { imoveis: [], pagamentos: [], pastas: [], arquivos: [] };
+let db = { imoveis: [], pagamentos: [], pastas: [], arquivos: [], despesas: [] };
 
 // Supabase REST helpers
 async function sbFetch(path, opts={}) {
@@ -810,12 +810,13 @@ async function loadDB() {
   showCloudStatus('Carregando dados...');
   try {
     const uid = currentUser.id;
-    const [imoveis, pagamentos, pastas, arquivos] = await Promise.all([
+    const [imoveis, pagamentos, pastas, arquivos, despesas] = await Promise.all([
       sbSelect('imoveis', `user_id=eq.${uid}`),
       sbSelect('pagamentos', `user_id=eq.${uid}`),
       sbSelect('pastas', `user_id=eq.${uid}`),
-      sbSelect('arquivos', `user_id=eq.${uid}`)
-    ]);
+      sbSelect('arquivos', `user_id=eq.${uid}`),
+sbSelect('despesas', `user_id=eq.${uid}`)
+]);
     // Normalize — map snake_case Supabase fields to camelCase used in UI
     db.imoveis = (imoveis||[]).map(r => ({
       id: r.id, nome: r.nome, tipo: r.tipo, endereco: r.endereco, comp: r.comp,
@@ -835,6 +836,13 @@ async function loadDB() {
     db.arquivos = (arquivos||[]).map(r => ({
   id: r.id, nome: r.nome, tipo: r.tipo, pastaId: r.pasta_id,
   createdAt: r.created_at, url: r.url || null
+}));
+    db.despesas = (despesas||[]).map(r => ({
+  id: r.id, imovelId: r.imovel_id, tipo: r.tipo,
+  valor: r.valor||0, diaVencimento: r.dia_vencimento,
+  iptuModalidade: r.iptu_modalidade, iptuParcelas: r.iptu_parcelas||1,
+  iptuValorTotal: r.iptu_valor_total||0,
+  iptuDatas: r.iptu_datas ? JSON.parse(r.iptu_datas) : []
 }));
     hideCloudStatus();
   } catch(e) {
@@ -1520,6 +1528,32 @@ function renderAlertas() {
   const atras = db.imoveis.filter(i=>i.status==='atrasado');
   const pend = db.imoveis.filter(i=>i.status==='pendente');
   const pagos = db.pagamentos.slice(0,3);
+  // Alertas de despesas de imóveis vagos
+const hoje = new Date().getDate();
+db.despesas.forEach(d => {
+  const im = db.imoveis.find(i=>i.id===d.imovelId);
+  if (!im || im.status !== 'vago') return;
+  if ((d.tipo === 'agua' || d.tipo === 'energia') && d.diaVencimento) {
+    const diff = d.diaVencimento - hoje;
+    const label = d.tipo === 'agua' ? '💧 Água' : '⚡ Energia';
+    const quando = diff === 0 ? 'Vence hoje' : diff > 0 ? `Faltam ${diff} dias` : `Venceu há ${Math.abs(diff)} dias`;
+    html += `<div class="notif-item"><div class="notif-icon" style="background:var(--blue-l)"><svg width="16" height="16" viewBox="0 0 16 16" fill="var(--blue-d)"><path d="M8 1a5 5 0 00-5 5v4l-1 2h12l-1-2V6a5 5 0 00-5-5zM6 14a2 2 0 004 0"/></svg></div><div><div class="notif-title">${label} — ${im.nome||im.endereco}</div><div class="notif-desc">${fmt(d.valor)} · vence dia ${d.diaVencimento}</div><div class="notif-time">${quando}</div></div></div>`;
+  }
+  if (d.tipo === 'iptu' && d.iptuDatas?.length) {
+    d.iptuDatas.forEach((data, i) => {
+      if (!data) return;
+      const [y,m,dia] = data.split('-');
+      const dVenc = parseInt(dia);
+      const mVenc = parseInt(m);
+      const mAtual = new Date().getMonth()+1;
+      if (mVenc === mAtual) {
+        const diff = dVenc - hoje;
+        const quando = diff === 0 ? 'Vence hoje' : diff > 0 ? `Faltam ${diff} dias` : `Venceu há ${Math.abs(diff)} dias`;
+        html += `<div class="notif-item"><div class="notif-icon" style="background:var(--amber-l)"><svg width="16" height="16" viewBox="0 0 16 16" fill="var(--amber)"><path d="M8 1a5 5 0 00-5 5v4l-1 2h12l-1-2V6a5 5 0 00-5-5zM6 14a2 2 0 004 0"/></svg></div><div><div class="notif-title">🏛 IPTU Parcela ${i+1} — ${im.nome||im.endereco}</div><div class="notif-desc">${fmt(d.iptuValorTotal/d.iptuParcelas)} · vence ${dia}/${m}</div><div class="notif-time">${quando}</div></div></div>`;
+      }
+    });
+  }
+});
   let html='';
   atras.forEach(im=>{ html+=`<div class="notif-item"><div class="notif-icon" style="background:var(--red-l)"><svg width="16" height="16" viewBox="0 0 16 16" fill="var(--red-d)"><path d="M8 1a5 5 0 00-5 5v4l-1 2h12l-1-2V6a5 5 0 00-5-5zM6 14a2 2 0 004 0"/></svg></div><div><div class="notif-title">Cobrança enviada — ${im.inquilino}</div><div class="notif-desc">Aluguel em atraso · ${fmt(im.valor)}</div><div class="notif-time">Hoje</div></div></div>`; });
   pend.slice(0,2).forEach(im=>{     const hoje = new Date().getDate();     const diff = im.dia - hoje;     const quando = diff === 0 ? 'Vence hoje' : diff > 0 ? `Faltam ${diff} dias` : `Venceu há ${Math.abs(diff)} dias`;     html+=`<div class="notif-item"><div class="notif-icon" style="background:var(--amber-l)"><svg width="16" height="16" viewBox="0 0 16 16" fill="var(--amber)"><path d="M8 1a5 5 0 00-5 5v4l-1 2h12l-1-2V6a5 5 0 00-5-5zM6 14a2 2 0 004 0"/></svg></div><div><div class="notif-title">Vencimento próximo — ${im.inquilino}</div><div class="notif-desc">Vence dia ${im.dia} · ${fmt(im.valor)}</div><div class="notif-time">${quando}</div></div></div>`;   });
@@ -2055,6 +2089,26 @@ function openModal(id) {
     </div>
 
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:16px;border-top:1px solid var(--border)">
+     ${im && im.status === 'vago' ? `
+<div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;margin-top:4px">Despesas do imóvel vago</div>
+<div class="form-grid" style="margin-bottom:20px">
+  <div class="field"><label>Água — dia de vencimento</label><input id="m-agua-dia" type="number" min="1" max="28" placeholder="Ex: 10" value="${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='agua')?.diaVencimento)||''}"></div>
+  <div class="field"><label>Água — valor mensal (R$)</label><input id="m-agua-val" type="number" placeholder="0" value="${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='agua')?.valor)||''}"></div>
+  <div class="field"><label>Energia — dia de vencimento</label><input id="m-energia-dia" type="number" min="1" max="28" placeholder="Ex: 15" value="${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='energia')?.diaVencimento)||''}"></div>
+  <div class="field"><label>Energia — valor mensal (R$)</label><input id="m-energia-val" type="number" placeholder="0" value="${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='energia')?.valor)||''}"></div>
+  <div class="field form-full"><label>IPTU — modalidade</label>
+    <select id="m-iptu-mod" onchange="toggleIptuFields()">
+      <option value="">Não informado</option>
+      <option value="avista" ${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='iptu')?.iptuModalidade)==='avista'?'selected':''}>À vista</option>
+      <option value="parcelado" ${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='iptu')?.iptuModalidade)==='parcelado'?'selected':''}>Parcelado</option>
+    </select>
+  </div>
+  <div id="iptu-fields" style="display:${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='iptu')?.iptuModalidade)?'contents':'none'}">
+    <div class="field"><label>Valor total do IPTU (R$)</label><input id="m-iptu-total" type="number" placeholder="0" value="${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='iptu')?.iptuValorTotal)||''}"></div>
+    <div class="field"><label>Número de parcelas</label><input id="m-iptu-parc" type="number" min="1" max="12" placeholder="1" value="${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='iptu')?.iptuParcelas)||''}" onchange="renderIptuDatas()"></div>
+    <div class="field form-full" id="iptu-datas-wrap"><label>Datas de vencimento das parcelas</label><div id="iptu-datas-inputs" style="display:flex;flex-direction:column;gap:8px;margin-top:4px"></div></div>
+  </div>
+</div>` : ''} 
       ${im ? `<button class="btn danger" onclick="confirmarRemover('${im.id}')">Remover imóvel</button>` : '<div></div>'}
       <div style="display:flex;gap:10px">
         <button class="btn" onclick="closeModal()">Cancelar</button>
@@ -2062,6 +2116,61 @@ function openModal(id) {
       </div>
     </div>
   `;
+}
+
+function toggleIptuFields() {
+  const mod = document.getElementById('m-iptu-mod')?.value;
+  const fields = document.getElementById('iptu-fields');
+  if (fields) fields.style.display = mod ? 'contents' : 'none';
+  renderIptuDatas();
+}
+
+function renderIptuDatas() {
+  const parc = parseInt(document.getElementById('m-iptu-parc')?.value) || 1;
+  const wrap = document.getElementById('iptu-datas-inputs');
+  if (!wrap) return;
+  const existing = db.despesas.find(d=>d.tipo==='iptu')?.iptuDatas || [];
+  wrap.innerHTML = Array.from({length: parc}, (_, i) => `
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:12px;color:var(--text-2);min-width:60px">Parcela ${i+1}</span>
+      <input type="date" id="m-iptu-data-${i}" value="${existing[i]||''}" style="flex:1;padding:8px 12px;font-size:13px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif">
+    </div>`).join('');
+}
+
+async function salvarDespesas(imovelId) {
+  const tipos = ['agua','energia','iptu'];
+  for (const tipo of tipos) {
+    const existing = db.despesas.find(d=>d.imovelId===imovelId&&d.tipo===tipo);
+    let dados = null;
+    if (tipo === 'agua') {
+      const dia = parseInt(document.getElementById('m-agua-dia')?.value)||null;
+      const val = parseFloat(document.getElementById('m-agua-val')?.value)||0;
+      if (dia || val) dados = { user_id: currentUser.id, imovel_id: imovelId, tipo, valor: val, dia_vencimento: dia };
+    }
+    if (tipo === 'energia') {
+      const dia = parseInt(document.getElementById('m-energia-dia')?.value)||null;
+      const val = parseFloat(document.getElementById('m-energia-val')?.value)||0;
+      if (dia || val) dados = { user_id: currentUser.id, imovel_id: imovelId, tipo, valor: val, dia_vencimento: dia };
+    }
+    if (tipo === 'iptu') {
+      const mod = document.getElementById('m-iptu-mod')?.value;
+      if (mod) {
+        const total = parseFloat(document.getElementById('m-iptu-total')?.value)||0;
+        const parc = parseInt(document.getElementById('m-iptu-parc')?.value)||1;
+        const datas = Array.from({length:parc},(_,i)=>document.getElementById(`m-iptu-data-${i}`)?.value||'');
+        dados = { user_id: currentUser.id, imovel_id: imovelId, tipo, iptu_modalidade: mod, iptu_parcelas: parc, iptu_valor_total: total, iptu_datas: JSON.stringify(datas) };
+      }
+    }
+    if (dados) {
+      if (existing) {
+        await sbUpdate('despesas', existing.id, dados);
+        Object.assign(existing, { diaVencimento: dados.dia_vencimento, valor: dados.valor||0, iptuModalidade: dados.iptu_modalidade, iptuParcelas: dados.iptu_parcelas, iptuValorTotal: dados.iptu_valor_total, iptuDatas: dados.iptu_datas ? JSON.parse(dados.iptu_datas) : [] });
+      } else {
+        const row = await sbInsert('despesas', dados);
+        if (row) db.despesas.push({ id: row.id, imovelId: imovelId, tipo, valor: dados.valor||0, diaVencimento: dados.dia_vencimento, iptuModalidade: dados.iptu_modalidade, iptuParcelas: dados.iptu_parcelas||1, iptuValorTotal: dados.iptu_valor_total||0, iptuDatas: dados.iptu_datas ? JSON.parse(dados.iptu_datas) : [] });
+      }
+    }
+  }
 }
 
 function closeModal() {
@@ -2095,6 +2204,7 @@ async function salvarModal(id) {
     if (idx>=0) db.imoveis[idx] = { ...db.imoveis[idx], ...dados };
     const pasta = db.pastas && db.pastas.find(p => p.imovelId === id);
     if (pasta) { pasta.nome = dados.nome || dados.endereco || pasta.nome; await sbUpdate('pastas', pasta.id, { nome: pasta.nome }); }
+    if (dados.status === 'vago') await salvarDespesas(id);
     showToast('Imóvel atualizado com sucesso!');
   } else {
     const row = await sbInsert('imoveis', {
