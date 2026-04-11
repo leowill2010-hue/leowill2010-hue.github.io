@@ -1540,7 +1540,42 @@ function renderAlertas() {
 // ============================
 // RELATÓRIOS
 // ============================
-function renderRelatorios() {
+// ============================
+// E-MAILS MÚLTIPLOS
+// ============================
+let emailList = JSON.parse(localStorage.getItem('imovelpro_emails') || '[]');
+
+function renderEmailTags() {
+  const container = document.getElementById('email-tags');
+  if (!container) return;
+  container.innerHTML = emailList.map((e, i) => `
+    <span style="display:inline-flex;align-items:center;gap:6px;background:var(--teal-l);color:var(--teal-d);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500">
+      ${e}
+      <span onclick="removeEmail(${i})" style="cursor:pointer;font-size:14px;line-height:1">×</span>
+    </span>`).join('');
+}
+
+function addEmail() {
+  const input = document.getElementById('email-notif');
+  const email = input.value.trim().toLowerCase();
+  if (!email || !email.includes('@')) { showToast('Informe um e-mail válido.'); return; }
+  if (emailList.includes(email)) { showToast('Este e-mail já foi adicionado.'); return; }
+  emailList.push(email);
+  input.value = '';
+  renderEmailTags();
+}
+
+function removeEmail(index) {
+  emailList.splice(index, 1);
+  renderEmailTags();
+}
+
+function saveEmail() {
+  if (emailList.length === 0) { showToast('Adicione pelo menos um e-mail.'); return; }
+  localStorage.setItem('imovelpro_emails', JSON.stringify(emailList));
+  showToast('Configurações salvas! Alertas serão enviados para ' + emailList.length + ' e-mail(s).');
+}
+  function renderRelatorios() {
   const total = db.imoveis.length;
   const ocupados = db.imoveis.filter(i=>i.inquilino).length;
   const atrasados = db.imoveis.filter(i=>i.status==='atrasado').length;
