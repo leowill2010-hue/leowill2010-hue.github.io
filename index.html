@@ -1441,15 +1441,61 @@ async function excluirPasta(id) {
 }
 
 async function uploadArquivo() {
-  const nome = prompt('Nome do arquivo (ex: Contrato_João.pdf):');
-  if (!nome || !nome.trim()) return;
-  const tipo = prompt('Tipo (Contrato, Laudo, Outro):', 'Contrato');
-  initDocDB();
-  const arqRow = await sbInsert('arquivos', { user_id: currentUser.id, nome: nome.trim(), tipo: tipo||'Outro', pasta_id: docCurrentFolder||null });
-  if (!arqRow) { showToast('Erro ao adicionar arquivo.'); return; }
-  db.arquivos.push({ id: arqRow.id, nome: arqRow.nome, tipo: arqRow.tipo, pastaId: docCurrentFolder, createdAt: arqRow.created_at });
-  renderDocFolder(docCurrentFolder);
-  showToast('Arquivo "' + nome.trim() + '" adicionado!');
+  // Cria input de arquivo invisível
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx';
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { showToast('Arquivo muito grande! Máximo 10MB.'); return; }
+
+    const tipo = prompt('Tipo do arquivo (Contrato, Laudo, Comprovante, Outro):', 'Contrato');
+    if (!tipo) return;
+
+    showToast('Enviando arquivo...');
+
+    // Caminho: userId/pastaId/nomeArquivo
+    const pasta = docCurrentFolder || 'raiz';
+    const caminho = `${currentUser.id}/${pasta}/${Date.now()}_${file.name}`;
+
+    // Upload para Supabase Storage
+    const res = await fetch(`${SB_URL}/storage/v1/object/documentos/${caminho}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + currentUser.token,
+        'Content-Type': file.type,
+        'x-upsert': 'true'
+      },
+      body: file
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      console.error('Upload error:', err);
+      showToast('Erro ao enviar arquivo.');
+      return;
+    }
+
+    // URL pública do arquivo
+    const urlPublica = `${SB_URL}/storage/v1/object/public/documentos/${caminho}`;
+
+    // Salva referência no banco
+    initDocDB();
+    const arqRow = await sbInsert('arquivos', {
+      user_id: currentUser.id,
+      nome: file.name,
+      tipo: tipo || 'Outro',
+      pasta_id: docCurrentFolder || null,
+      url: urlPublica
+    });
+
+    if (!arqRow) { showToast('Erro ao registrar arquivo.'); return; }
+    db.arquivos.push({ id: arqRow.id, nome: file.name, tipo: tipo, pastaId: docCurrentFolder, createdAt: arqRow.created_at, url: urlPublica });
+    renderDocFolder(docCurrentFolder);
+    showToast('Arquivo "' + file.name + '" enviado com sucesso!');
+  };
+  input.click();
 }
 
 async function excluirArquivo(id) {
