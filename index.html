@@ -627,8 +627,15 @@
             <div class="toggle-row"><div><div class="toggle-label">Resumo semanal por e-mail</div><div class="toggle-desc">Toda segunda-feira às 07:00</div></div><label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
             <div class="toggle-row"><div><div class="toggle-label">Confirmação de pagamento recebido</div><div class="toggle-desc">Notificação ao registrar</div></div><label class="toggle"><input type="checkbox"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
           </div>
-          <div class="field" style="margin-top:14px"><label>Seu e-mail para notificações</label><input type="email" placeholder="seuemail@exemplo.com" id="email-notif"></div>
-          <button class="btn primary" style="width:100%;justify-content:center;margin-top:10px" onclick="saveEmail()">Salvar configurações</button>
+          <div style="margin-top:14px">
+  <label style="font-size:12px;font-weight:500;color:var(--text-2);display:block;margin-bottom:6px">E-mails para notificações</label>
+  <div id="email-tags" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+  <div style="display:flex;gap:8px">
+    <input type="email" id="email-notif" placeholder="adicionar@email.com" style="flex:1;padding:9px 12px;font-size:13px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif" onkeydown="if(event.key==='Enter'){event.preventDefault();addEmail()}">
+    <button class="btn sm primary" onclick="addEmail()">+ Adicionar</button>
+  </div>
+</div>
+<button class="btn primary" style="width:100%;justify-content:center;margin-top:10px" onclick="saveEmail()">Salvar configurações</button>
         </div>
       </div>
     </div>
@@ -1519,14 +1526,16 @@ function renderAlertas() {
   pagos.forEach(p=>{ html+=`<div class="notif-item"><div class="notif-icon" style="background:var(--green-l)"><svg width="16" height="16" viewBox="0 0 16 16" fill="var(--green-d)"><path d="M3 8l3.5 3.5 6.5-7" stroke="var(--green-d)" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><div><div class="notif-title">Pagamento confirmado — ${p.inquilino}</div><div class="notif-desc">${fmt(p.valor)} · ${p.data} · ${p.metodo}</div><div class="notif-time">${p.data}</div></div></div>`; });
   if(!html) html='<div class="empty">Nenhuma notificação recente.</div>';
   document.getElementById('notif-list').innerHTML=html;
-  const saved = localStorage.getItem('imovelpro_email');
-  if(saved) document.getElementById('email-notif').value=saved;
+  emailList = JSON.parse(localStorage.getItem('imovelpro_emails') || '[]');
+  // Migra e-mail antigo se existir
+  const emailAntigo = localStorage.getItem('imovelpro_email');
+  if (emailAntigo && !emailList.includes(emailAntigo)) {
+    emailList.push(emailAntigo);
+    localStorage.removeItem('imovelpro_email');
+  }
+  setTimeout(renderEmailTags, 50);
 }
-function saveEmail() {
-  const email = document.getElementById('email-notif').value;
-  if(email) { localStorage.setItem('imovelpro_email',email); showToast('Configurações salvas! E-mails serão enviados para '+email); }
-  else showToast('Informe seu e-mail para continuar.');
-}
+
 
 // ============================
 // RELATÓRIOS
