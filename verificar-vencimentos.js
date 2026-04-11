@@ -96,7 +96,9 @@ async function main() {
   for (const [userId, imoveisDoUsuario] of Object.entries(porUsuario)) {
     const emailLocador = await buscarEmailUsuario(userId);
     if (!emailLocador) { console.log(`⚠️ E-mail não encontrado para usuário ${userId}`); continue; }
-
+    // E-mails extras salvos no localStorage não estão disponíveis no servidor
+    // O e-mail principal do Supabase Auth é sempre usado
+    const emailsParaEnviar = [emailLocador];
     const alertas = [];
     for (const im of imoveisDoUsuario) {
       const dias = getDiasParaVencimento(im.dia);
@@ -114,10 +116,12 @@ async function main() {
     if (alertas.length > 0) {
       const mensagem = alertas.join('\n\n');
       const assunto = alertas.length === 1 ? 'Alerta de vencimento de aluguel' : `${alertas.length} alertas de aluguel`;
-      console.log(`📧 Enviando e-mail para ${emailLocador} com ${alertas.length} alerta(s)...`);
-      const ok = await enviarEmail(emailLocador, assunto, emailLocador.split('@')[0], mensagem);
-      if (ok) { emailsEnviados++; console.log(`✅ E-mail enviado!`); }
-      else { console.log(`❌ Falha ao enviar e-mail`); }
+      for (const dest of emailsParaEnviar) {
+        console.log(`📧 Enviando e-mail para ${dest} com ${alertas.length} alerta(s)...`);
+        const ok = await enviarEmail(dest, assunto, dest.split('@')[0], mensagem);
+        if (ok) { emailsEnviados++; console.log(`✅ E-mail enviado para ${dest}!`); }
+        else { console.log(`❌ Falha ao enviar e-mail para ${dest}`); }
+      }
     } else {
       console.log(`ℹ️ Nenhum alerta para ${emailLocador}`);
     }
