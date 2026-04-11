@@ -2088,9 +2088,27 @@ function openModal(id) {
       <div class="field"><label>IPTU mensal (R$)</label><input id="m-iptu" type="number" placeholder="0" value="${v.iptu||''}"></div>
     </div>
 
+    ${im && im.status === 'vago' ? `
+<div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;border-top:1px solid var(--border);padding-top:16px">Despesas do imóvel vago</div>
+<div class="form-grid" style="margin-bottom:20px">
+  <div class="field"><label>Água — dia de vencimento</label><input id="m-agua-dia" type="number" min="1" max="28" placeholder="Ex: 10" value="${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='agua')?.diaVencimento)||''}"></div>
+  <div class="field"><label>Água — valor mensal (R$)</label><input id="m-agua-val" type="number" placeholder="0" value="${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='agua')?.valor)||''}"></div>
+  <div class="field"><label>Energia — dia de vencimento</label><input id="m-energia-dia" type="number" min="1" max="28" placeholder="Ex: 15" value="${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='energia')?.diaVencimento)||''}"></div>
+  <div class="field"><label>Energia — valor mensal (R$)</label><input id="m-energia-val" type="number" placeholder="0" value="${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='energia')?.valor)||''}"></div>
+  <div class="field form-full"><label>IPTU — modalidade</label>
+    <select id="m-iptu-mod" onchange="toggleIptuFields()">
+      <option value="">Não informado</option>
+      <option value="avista" ${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='iptu')?.iptuModalidade)==='avista'?'selected':''}>À vista</option>
+      <option value="parcelado" ${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='iptu')?.iptuModalidade)==='parcelado'?'selected':''}>Parcelado</option>
+    </select>
+  </div>
+  <div id="iptu-fields" style="display:${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='iptu')?.iptuModalidade)?'contents':'none'}">
+    <div class="field"><label>Valor total do IPTU (R$)</label><input id="m-iptu-total" type="number" placeholder="0" value="${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='iptu')?.iptuValorTotal)||''}"></div>
+    <div class="field"><label>Número de parcelas</label><input id="m-iptu-parc" type="number" min="1" max="12" placeholder="1" value="${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='iptu')?.iptuParcelas)||''}" onchange="renderIptuDatas()"></div>
+    <div class="field form-full" id="iptu-datas-wrap"><label>Datas de vencimento das parcelas</label><div id="iptu-datas-inputs" style="display:flex;flex-direction:column;gap:8px;margin-top:4px"></div></div>
+  </div>
+</div>` : ''}
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:16px;border-top:1px solid var(--border)">
-     ${im && im.status === 'vago' ? `
-<div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;margin-top:4px">Despesas do imóvel vago</div>
 <div class="form-grid" style="margin-bottom:20px">
   <div class="field"><label>Água — dia de vencimento</label><input id="m-agua-dia" type="number" min="1" max="28" placeholder="Ex: 10" value="${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='agua')?.diaVencimento)||''}"></div>
   <div class="field"><label>Água — valor mensal (R$)</label><input id="m-agua-val" type="number" placeholder="0" value="${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='agua')?.valor)||''}"></div>
