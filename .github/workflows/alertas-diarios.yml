@@ -22,6 +22,6 @@ jobs:
 
       - name: Verificar vencimentos e enviar e-mails
         run: node verificar-vencimentos.js
-        env:
+       env:
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-          EMAILJS_PRIVATE_KEY: ${{ secrets.EMAILJS_PRIVATE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
