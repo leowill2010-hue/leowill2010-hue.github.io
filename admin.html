@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ImóvelPro — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #F7F6F2; color: #1a1a18; font-size: 14px; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .card { background: white; border-radius: 20px; padding: 40px 44px; width: 100%; max-width: 520px; box-shadow: 0 8px 32px rgba(0,0,0,0.08); }
+  .logo { display: flex; align-items: center; gap: 11px; margin-bottom: 28px; }
+  .logo-icon { width: 40px; height: 40px; background: #1D9E75; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .logo-icon svg { width: 22px; height: 22px; fill: white; }
+  .logo-title { font-family: 'DM Serif Display', serif; font-size: 22px; }
+  .logo-sub { font-size: 13px; color: #6b6b66; margin-top: 2px; }
+  .divider { height: 1px; background: rgba(0,0,0,0.08); margin: 20px 0; }
+  label { display: block; font-size: 12px; font-weight: 500; color: #6b6b66; margin-bottom: 5px; }
+  input, textarea { width: 100%; padding: 10px 14px; font-size: 14px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.12); background: #F7F6F2; color: #1a1a18; font-family: 'DM Sans', sans-serif; transition: border 0.15s, background 0.15s; margin-bottom: 14px; }
+  input:focus, textarea:focus { outline: none; border-color: #1D9E75; background: white; }
+  textarea { min-height: 160px; resize: vertical; }
+  .btn { width: 100%; padding: 11px; background: #1D9E75; color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.15s; }
+  .btn:hover { background: #0F6E56; }
+  .btn:disabled { background: #9FE1CB; cursor: not-allowed; }
+  .error { font-size: 12px; color: #A32D2D; background: #FCEBEB; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; display: none; text-align: center; }
+  .error.show { display: block; }
+  .status { font-size: 13px; font-weight: 500; padding: 12px 16px; border-radius: 10px; margin-top: 12px; display: none; }
+  .status.success { background: #EAF3DE; color: #3B6D11; display: block; }
+  .status.error { background: #FCEBEB; color: #A32D2D; display: block; }
+  .pass-wrap { position: relative; }
+  .pass-wrap input { margin-bottom: 0; padding-right: 42px; }
+  .eye-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #9e9e99; padding: 4px; }
+  .eye-btn:hover { color: #1D9E75; }
+  #login-section { }
+  #admin-section { display: none; }
+  .tag { display: inline-block; background: #E1F5EE; color: #0F6E56; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon"><svg viewBox="0 0 16 16"><path d="M8 1L1 6v9h5V9h4v6h5V6L8 1z"/></svg></div>
+    <div>
+      <div class="logo-title">ImóvelPro</div>
+      <div class="logo-sub">Painel de administração</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+
+  <!-- LOGIN -->
+  <div id="login-section">
+    <div style="margin-bottom:14px">
+      <label>Senha de administrador</label>
+      <div class="pass-wrap">
+        <input type="password" id="senha-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')verificarSenha()">
+        <button type="button" class="eye-btn" onclick="toggleSenha()">👁</button>
+      </div>
+    </div>
+    <div class="error" id="senha-erro">Senha incorreta. Tente novamente.</div>
+    <button class="btn" onclick="verificarSenha()" style="margin-top:14px">Entrar</button>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="admin-section">
+    <span class="tag">✅ Acesso autorizado</span>
+    <div style="margin-bottom:14px">
+      <label>Assunto do e-mail</label>
+      <input type="text" id="assunto" placeholder="Ex: Nova funcionalidade disponível!">
+    </div>
+    <div style="margin-bottom:14px">
+      <label>Mensagem</label>
+      <textarea id="mensagem" placeholder="Escreva a mensagem para todos os seus locadores..."></textarea>
+    </div>
+    <button class="btn" id="btn-enviar" onclick="enviarEmails()">📧 Enviar para todos os locadores</button>
+    <div class="status" id="status-msg"></div>
+    <div style="text-align:center;margin-top:16px">
+      <span onclick="sair()" style="font-size:12px;color:#9e9e99;cursor:pointer;text-decoration:underline">Sair do admin</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const SENHA = 'Imovelpro123';
+const RESEND_KEY = 're_Sx5rUZsj_Fjpmsx7PXpPDkeJ1TaGFnBUa';
+const SB_URL = 'https://qfeebxwjjzdcxeycleik.supabase.co';
+const SB_KEY = 'sb_publishable_t6gMCBwAzdLpgJ6LCFFzBQ_sjnjgBDd';
+const SB_SERVICE_KEY = 'SUA_SUPABASE_SERVICE_KEY_AQUI';
+
+function toggleSenha() {
+  const input = document.getElementById('senha-input');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function verificarSenha() {
+  const val = document.getElementById('senha-input').value;
+  const erro = document.getElementById('senha-erro');
+  if (val === SENHA) {
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('admin-section').style.display = 'block';
+    erro.classList.remove('show');
+  } else {
+    erro.classList.add('show');
+    document.getElementById('senha-input').value = '';
+    document.getElementById('senha-input').focus();
+  }
+}
+
+function sair() {
+  document.getElementById('login-section').style.display = 'block';
+  document.getElementById('admin-section').style.display = 'none';
+  document.getElementById('senha-input').value = '';
+  document.getElementById('assunto').value = '';
+  document.getElementById('mensagem').value = '';
+  document.getElementById('status-msg').className = 'status';
+}
+
+async function enviarEmails() {
+  const assunto = document.getElementById('assunto').value.trim();
+  const mensagem = document.getElementById('mensagem').value.trim();
+  const statusEl = document.getElementById('status-msg');
+  const btn = document.getElementById('btn-enviar');
+
+  if (!assunto || !mensagem) { alert('Preencha o assunto e a mensagem!'); return; }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Enviando...';
+  statusEl.className = 'status';
+
+  try {
+    // Busca todos os usuários no Supabase
+    const res = await fetch(`${SB_URL}/auth/v1/admin/users?page=1&per_page=100`, {
+      headers: { 'apikey': SB_SERVICE_KEY, 'Authorization': `Bearer ${SB_SERVICE_KEY}` }
+    });
+    const data = await res.json();
+    const usuarios = data.users || [];
+
+    let enviados = 0;
+    let erros = 0;
+
+    for (const u of usuarios) {
+      if (!u.email) continue;
+      const nome = u.user_metadata?.full_name || u.email.split('@')[0];
+      const html = `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<body style="margin:0;padding:0;background:#F7F6F2;font-family:'Helvetica Neue',Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F7F6F2;padding:40px 20px">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+        <tr><td style="background:#1D9E75;padding:28px 36px">
+          <table cellpadding="0" cellspacing="0"><tr>
+            <td style="background:#fff;border-radius:8px;width:36px;height:36px;text-align:center;vertical-align:middle;padding:8px"><span style="font-size:18px">🏠</span></td>
+            <td style="padding-left:12px">
+              <div style="font-size:20px;font-weight:700;color:#ffffff;font-family:Georgia,serif">ImóvelPro</div>
+              <div style="font-size:12px;color:#9FE1CB;margin-top:2px">Gestão de aluguéis</div>
+            </td>
+          </tr></table>
+        </td></tr>
+        <tr><td style="padding:36px">
+          <h2 style="margin:0 0 8px;font-size:22px;color:#1a1a18;font-family:Georgia,serif">${assunto}</h2>
+          <p style="margin:0 0 20px;font-size:14px;color:#6b6b66">Olá, ${nome}!</p>
+          <div style="font-size:14px;color:#1a1a18;line-height:1.7;white-space:pre-line">${mensagem}</div>
+          <div style="margin-top:28px;padding:16px;background:#E1F5EE;border-radius:10px;text-align:center">
+            <a href="https://imovelpro.tec.br" style="color:#0F6E56;font-weight:600;font-size:14px;text-decoration:none">Acessar ImóvelPro →</a>
+          </div>
+        </td></tr>
+        <tr><td style="padding:20px 36px;border-top:1px solid #f0ede8;text-align:center">
+          <p style="margin:0;font-size:12px;color:#9e9e99">ImóvelPro · <a href="https://imovelpro.tec.br" style="color:#1D9E75;text-decoration:none">imovelpro.tec.br</a></p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+      const r = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from: 'ImóvelPro <alertas@imovelpro.tec.br>', to: [u.email], subject: assunto, html })
+      });
+      if (r.ok) enviados++; else erros++;
+    }
+
+    statusEl.className = 'status success';
+    statusEl.textContent = `✅ ${enviados} e-mail(s) enviado(s) com sucesso!${erros > 0 ? ` ⚠️ ${erros} erro(s).` : ''}`;
+    document.getElementById('assunto').value = '';
+    document.getElementById('mensagem').value = '';
+  } catch(e) {
+    statusEl.className = 'status error';
+    statusEl.textContent = '❌ Erro: ' + e.message;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '📧 Enviar para todos os locadores';
+}
+</script>
+
+</body>
+</html>
