@@ -1,0 +1,29 @@
+name: Enviar Comunicado aos Locadores
+on:
+  workflow_dispatch:
+    inputs:
+      assunto:
+        description: 'Assunto do e-mail'
+        required: true
+      mensagem:
+        description: 'Mensagem para os locadores'
+        required: true
+jobs:
+  enviar-comunicado:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Instalar dependências
+        run: npm install node-fetch
+      - name: Enviar comunicado
+        run: node enviar-comunicado.js
+        env:
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ASSUNTO: ${{ inputs.assunto }}
+          MENSAGEM: ${{ inputs.mensagem }}
