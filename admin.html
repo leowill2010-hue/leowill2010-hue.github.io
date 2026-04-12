@@ -129,11 +129,25 @@ async function enviarEmails() {
 
   try {
     // Busca todos os usuários no Supabase
-    const res = await fetch(`${SB_URL}/auth/v1/admin/users?page=1&per_page=100`, {
+    const res = await fetch(`${SB_URL}/rest/v1/imoveis?select=user_id&order=user_id`, {
       headers: { 'apikey': SB_SERVICE_KEY, 'Authorization': `Bearer ${SB_SERVICE_KEY}` }
     });
-    const data = await res.json();
-    const usuarios = data.users || [];
+    const imoveis = await res.json();
+
+    // Pega user_ids únicos
+    const userIds = [...new Set(imoveis.map(i => i.user_id).filter(Boolean))];
+
+    // Busca e-mail de cada usuário
+    const usuarios = [];
+    for (const uid of userIds) {
+      const r2 = await fetch(`${SB_URL}/auth/v1/admin/users/${uid}`, {
+        headers: { 'apikey': SB_SERVICE_KEY, 'Authorization': `Bearer ${SB_SERVICE_KEY}` }
+      });
+      if (r2.ok) {
+        const u = await r2.json();
+        if (u.email) usuarios.push(u);
+      }
+    }
 
     let enviados = 0;
     let erros = 0;
