@@ -2107,8 +2107,9 @@ function openModal(id) {
     <div class="field"><label>Número de parcelas</label><input id="m-iptu-parc" type="number" min="1" max="12" placeholder="1" value="${(db.despesas.find(d=>d.imovelId===im.id&&d.tipo==='iptu')?.iptuParcelas)||''}" onchange="renderIptuDatas()"></div>
     <div class="field form-full" id="iptu-datas-wrap"><label>Datas de vencimento das parcelas</label><div id="iptu-datas-inputs" style="display:flex;flex-direction:column;gap:8px;margin-top:4px"></div></div>
   </div>
-</div>
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:16px;border-top:1px solid var(--border)">
+  </div>
+  </div>
+    <div style="display:flex;justify-content:space-between
 
       ${im ? `<button class="btn danger" onclick="confirmarRemover('${im.id}')">Remover imóvel</button>` : '<div></div>'}
       <div style="display:flex;gap:10px">
