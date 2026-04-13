@@ -2122,8 +2122,21 @@ function openModal(id) {
 function toggleVago() {
   const status = document.getElementById('m-status')?.value;
   const secao = document.getElementById('secao-despesas');
+  const diaInput = document.getElementById('m-dia');
   if (!secao) return;
   secao.style.display = status === 'vago' ? 'block' : 'none';
+  if (diaInput) {
+    if (status === 'vago') {
+      diaInput.value = '';
+      diaInput.disabled = true;
+      diaInput.placeholder = 'Não aplicável';
+      diaInput.style.opacity = '0.5';
+    } else {
+      diaInput.disabled = false;
+      diaInput.placeholder = '5';
+      diaInput.style.opacity = '1';
+    }
+  }
 }
 function toggleIptuFields() {
   const mod = document.getElementById('m-iptu-mod')?.value;
