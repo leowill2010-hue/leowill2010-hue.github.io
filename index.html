@@ -821,7 +821,7 @@ sbSelect('despesas', `user_id=eq.${uid}`)
     db.imoveis = (imoveis||[]).map(r => ({
       id: r.id, nome: r.nome, tipo: r.tipo, endereco: r.endereco, comp: r.comp,
       area: r.area, inquilino: r.inquilino, cpf: r.cpf, tel: r.tel, email: r.email,
-      valor: r.valor||0, dia: r.dia||5, inicio: r.inicio, fim: r.fim,
+      valor: r.valor||0, dia: r.dia||null, inicio: r.inicio, fim: r.fim,
       forma: r.forma, indice: r.indice, status: r.status||'pendente',
       cond: r.cond||0, iptu: r.iptu||0
     }));
