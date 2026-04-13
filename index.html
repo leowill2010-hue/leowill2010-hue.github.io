@@ -1330,15 +1330,7 @@ function renderDocFolder(parentId) {
   const subpastas = db.pastas.filter(p => p.parentId === parentId);
   // Arquivos nesta pasta
   const arquivos = db.arquivos.filter(a => a.pastaId === parentId);
-  // Comprovantes de pagamento nesta pasta (baseado no imovelId da pasta)
-  const pastaAtual = parentId ? db.pastas.find(p => p.id === parentId) : null;
-  const imovelId = pastaAtual ? (pastaAtual.imovelId || getRootImovelId(parentId)) : null;
-  const comprovantes = imovelId
-    ? db.pagamentos.filter(p => p.imovelId === imovelId).map(p => ({
-        id: 'comp_'+p.id, nome: 'Comprovante_'+p.data.replace(/\//g,'_')+'_'+fmt(p.valor)+'.pdf',
-        tipo: 'comprovante', tamanho: '—', createdAt: p.data, valor: p.valor, inquilino: p.inquilino
-      }))
-    : [];
+ const comprovantes = [];
 
   if (!subpastas.length && !arquivos.length && !comprovantes.length) {
     div.innerHTML = `<div class="empty" style="padding:40px">
@@ -1366,19 +1358,7 @@ function renderDocFolder(parentId) {
     </div>`;
   });
 
-  // Render comprovantes automáticos
-  comprovantes.forEach(arq => {
-    html += `<div class="doc-row">
-      <div class="doc-icon" style="background:var(--green-l)">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--green-d)"><path d="M4 1h6l4 4v10a1 1 0 01-1 1H3a1 1 0 01-1-1V2a1 1 0 011-1z"/><path d="M10 1v4h4" fill="none" stroke="var(--green-d)" stroke-width="1.2"/></svg>
-      </div>
-      <div style="flex:1;min-width:0">
-        <div class="doc-name">${arq.nome}</div>
-        <div class="doc-meta">${arq.inquilino} · ${arq.createdAt} · <span style="color:var(--green-d);font-weight:600">${fmt(arq.valor)}</span></div>
-      </div>
-      <span style="font-size:11px;background:var(--green-l);color:var(--green-d);padding:2px 8px;border-radius:10px;font-weight:600;flex-shrink:0">Comprovante</span>
-    </div>`;
-  });
+  
 
   // Render arquivos manuais
   arquivos.forEach(arq => {
