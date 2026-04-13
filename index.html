@@ -1059,7 +1059,7 @@ function renderPayHistory() {
     </div>`).join('');
 }
 async function registerPayment() {
-  const tid = parseInt(document.getElementById('pay-tenant').value);
+  const tid = document.getElementById('pay-tenant').value;
   const date = document.getElementById('pay-date').value;
   const valRaw = document.getElementById('pay-val').value.replace(/\D/g,'');
   const metodo = document.getElementById('pay-metodo').value;
