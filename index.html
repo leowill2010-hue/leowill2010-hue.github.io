@@ -1448,7 +1448,7 @@ async function uploadArquivo() {
   input.onchange = async () => {
     const file = input.files[0];
     if (!file) return;
-    if (file.size > 10 * 1024 * 1024) { showToast('Arquivo muito grande! Máximo 10MB.'); return; }
+    if (file.size > 50 * 1024 * 1024) { showToast('Arquivo muito grande! Máximo 50MB.'); return; }
 
     const tipo = prompt('Tipo do arquivo (Contrato, Laudo, Comprovante, Outro):', 'Contrato');
     if (!tipo) return;
