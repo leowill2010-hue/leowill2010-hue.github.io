@@ -1457,7 +1457,7 @@ async function uploadArquivo() {
 
     // Caminho: userId/pastaId/nomeArquivo
     const pasta = docCurrentFolder || 'raiz';
-    const caminho = `${currentUser.id}/${pasta}/${Date.now()}_${file.name}`;
+    const nomeSeguro = file.name.replace(/[^a-zA-Z0-9._-]/g, '_'); const caminho = `${currentUser.id}/${pasta}/${Date.now()}_${nomeSeguro}`;
 
     // Upload para Supabase Storage
     const res = await fetch(`${SB_URL}/storage/v1/object/documentos/${caminho}`, {
