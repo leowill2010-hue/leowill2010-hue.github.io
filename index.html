@@ -798,7 +798,7 @@ function toSnake(o) {
   return {
     nome: o.nome, tipo: o.tipo, endereco: o.endereco, comp: o.comp, area: o.area,
     inquilino: o.inquilino, cpf: o.cpf, tel: o.tel, email: o.email,
-    valor: o.valor||0, dia: o.dia||5, inicio: o.inicio||null, fim: o.fim||null,
+    valor: o.valor||0, dia: o.dia||null, inicio: o.inicio||null, fim: o.fim||null,
     forma: o.forma, indice: o.indice, status: o.status||'pendente',
     cond: o.cond||0, iptu: o.iptu||0
   };
@@ -2212,7 +2212,7 @@ async function salvarModal(id) {
     inquilino: g('m-inq'), cpf: g('m-cpf'), tel: g('m-tel'), email: g('m-email'),
     inicio: g('m-inicio'), fim: g('m-fim'),
     valor: parseFloat((g('m-valor')||'0').replace(/\./g,'').replace(',','.'))||0,
-    dia: parseInt(g('m-dia'))||5,
+    dia: g('m-status') === 'vago' ? null : (parseInt(g('m-dia'))||5),
     forma: g('m-forma'), indice: g('m-indice'), status: g('m-status'),
     cond: parseInt(g('m-cond'))||0, iptu: parseInt(g('m-iptu'))||0
   };
