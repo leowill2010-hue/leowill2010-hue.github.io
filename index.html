@@ -1462,7 +1462,7 @@ async function uploadArquivo() {
     const res = await fetch(`${SB_URL}/storage/v1/object/documentos/${caminho}`, {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + currentUser.token,
+        'Authorization': 'Bearer ' + SB_KEY,
         'Content-Type': file.type,
         'x-upsert': 'true'
       },
