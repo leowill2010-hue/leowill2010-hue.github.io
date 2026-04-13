@@ -1051,11 +1051,14 @@ function renderPayHistory() {
   if(!db.pagamentos.length){ div.innerHTML='<div class="empty">Nenhum pagamento registrado ainda.</div>'; return; }
   div.innerHTML = db.pagamentos.map(p=>`
     <div class="pay-row">
-      <div>
+      <div style="flex:1">
         <div class="pay-name">${p.inquilino}</div>
         <div class="pay-info">${p.data} · ${p.metodo}${p.obs?' · '+p.obs:''}</div>
       </div>
-      <div class="pay-val">${fmt(p.valor)}</div>
+      <div class="pay-val" style="margin-right:10px">${fmt(p.valor)}</div>
+      <button class="btn sm danger" onclick="excluirPagamento('${p.id}')" style="padding:5px 8px;flex-shrink:0">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3h10M4 3V2h4v1M9 3l-.7 7H3.7L3 3"/></svg>
+      </button>
     </div>`).join('');
 }
 async function registerPayment() {
@@ -2191,7 +2194,15 @@ async function salvarDespesas(imovelId) {
     }
   }
 }
-
+async function excluirPagamento(id) {
+  if (!confirm('Remover este pagamento?')) return;
+  await sbDelete('pagamentos', id);
+  db.pagamentos = db.pagamentos.filter(p => p.id !== id);
+  renderPayHistory();
+  renderDashboard();
+  updateBadges();
+  showToast('Pagamento removido.');
+}
 function closeModal() {
   document.getElementById('modal-overlay').style.display='none';
 }
