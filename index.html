@@ -687,6 +687,7 @@
 // ============================
 const SB_URL = 'https://qfeebxwjjzdcxeycleik.supabase.co';
 const SB_KEY = 'sb_publishable_t6gMCBwAzdLpgJ6LCFFzBQ_sjnjgBDd';
+  const SB_SRV = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZWVieHdqanpkY3hleWNsZWlrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTM5MjUzMSwiZXhwIjoyMDkwOTY4NTMxfQ._cHl--aNTR9lwY4n_or-y1U5j0zkcL3LTmjcNR1TLeY';
 let currentUser = null;
 let db = { imoveis: [], pagamentos: [], pastas: [], arquivos: [], despesas: [] };
 
@@ -1462,7 +1463,7 @@ async function uploadArquivo() {
     const res = await fetch(`${SB_URL}/storage/v1/object/documentos/${caminho}`, {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZWVieHdqanpkY3hleWNsZWlrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTM5MjUzMSwiZXhwIjoyMDkwOTY4NTMxfQ._cHl--aNTR9lwY4n_or-y1U5j0zkcL3LTmjcNR1TLeY',
+        'Authorization': 'Bearer ' + SB_SRV,
         'Content-Type': file.type,
         'x-upsert': 'true'
       },
