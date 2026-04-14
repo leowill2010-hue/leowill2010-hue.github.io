@@ -1245,7 +1245,7 @@ async function saveImovel() {
   const novo = {
     id: Date.now(),
     tipo: fd.tipo||'Apartamento',
-    nome: (fd.nome||fd.endereco||'Novo imóvel'),
+    nome: fd.nome||'',
     endereco: (fd.endereco||'')+(fd.comp?' — '+fd.comp:''),
     inquilino: fd.inquilino||'',
     cpf: fd.cpf||'',
@@ -2049,7 +2049,7 @@ function openModal(id) {
 
     <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Financeiro</div>
     <div class="form-grid" style="margin-bottom:20px">
-      <div class="field"><label>Aluguel (R$)</label><input id="m-valor" type="number" placeholder="2500" value="${v.valor||''}"></div>
+      <div class="field"><label>Aluguel (R$)</label><input id="m-valor" type="number" step="0.01" placeholder="2500.00" value="${v.valor||''}"></div>
       <div class="field"><label>Dia de vencimento</label><input id="m-dia" type="number" min="1" max="28" placeholder="5" value="${v.dia||''}"></div>
       <div class="field"><label>Forma de pagamento</label><select id="m-forma">
         <option ${v.forma==='PIX'?'selected':''}>PIX</option>
@@ -2070,7 +2070,7 @@ function openModal(id) {
         <option ${v.status==='vago'?'selected':''} value="vago">Vago</option>
       </select></div>
       <div class="field"><label>Condomínio mensal (R$)</label><input id="m-cond" type="number" placeholder="0" value="${v.cond||''}"></div>
-      <div class="field"><label>IPTU mensal (R$)</label><input id="m-iptu" type="number" placeholder="0" value="${v.iptu||''}"></div>
+      <div class="field"><label>IPTU mensal (R$)</label><input id="m-iptu" type="number" step="0.01" placeholder="0.00" value="${v.iptu||''}"></div>
     </div>
 
    <div id="secao-despesas" style="display:${(v.status === 'vago') ? 'block' : 'none'}">
