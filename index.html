@@ -1135,7 +1135,7 @@ function goStep(n) {
 }
 function saveStep() {
   const g = id => { const e=document.getElementById(id); return e?e.value:''; };
-  if(step===0){ fd.tipo=g('f-tipo'); fd.endereco=g('f-end'); fd.comp=g('f-comp'); fd.area=g('f-area'); fd.obs_im=g('f-obs-im'); }
+  if(step===0){ fd.tipo=g('f-tipo'); fd.nome=g('f-nome'); fd.endereco=g('f-end'); fd.comp=g('f-comp'); fd.area=g('f-area'); fd.obs_im=g('f-obs-im'); }
   if(step===1){ fd.inquilino=g('f-inq'); fd.cpf=g('f-cpf'); fd.tel=g('f-tel'); fd.email=g('f-email'); fd.inicio=g('f-inicio'); fd.fim=g('f-fim'); }
   if(step===2){ fd.valor=g('f-valor'); fd.dia=g('f-dia'); fd.forma=g('f-forma'); fd.indice=g('f-indice'); fd.cond=g('f-cond'); fd.iptu=g('f-iptu'); }
 }
