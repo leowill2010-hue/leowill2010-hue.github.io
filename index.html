@@ -2207,7 +2207,7 @@ async function salvarModal(id) {
     valor: parseFloat((g('m-valor')||'0').replace(/\./g,'').replace(',','.'))||0,
     dia: g('m-status') === 'vago' ? null : (parseInt(g('m-dia'))||5),
     forma: g('m-forma'), indice: g('m-indice'), status: g('m-status'),
-    cond: parseInt(g('m-cond'))||0, iptu: parseInt(g('m-iptu'))||0
+    cond: parseFloat(g('m-cond'))||0, iptu: parseFloat(g('m-iptu'))||0
   };
 
   if (id) {
