@@ -909,7 +909,7 @@ function statusPill(s) {
   return `<span class="pill ${map[s]||'vago'}">${lbl[s]||s}</span>`;
 }
 function tipoIcon(t) {
-  const m = {Apartamento:'🏠',Casa:'🏡','Sala comercial':'🏢',Cobertura:'🏛',Loja:'🏪'};
+  const m = {Apartamento:'🏠',Casa:'🏡','Sala comercial':'🏢',Cobertura:'🏛',Loja:'🏪',Terreno:'🌿'};
   return m[t]||'🏠';
 }
 
@@ -1146,7 +1146,7 @@ function renderStepContent() {
   const el = document.getElementById('step-content');
   if(step===0) el.innerHTML=`
     <div class="form-grid">
-      <div class="field form-full"><label>Tipo do imóvel</label><select id="f-tipo"><option ${fd.tipo==='Apartamento'?'selected':''}>Apartamento</option><option ${fd.tipo==='Casa'?'selected':''}>Casa</option><option ${fd.tipo==='Sala comercial'?'selected':''}>Sala comercial</option><option ${fd.tipo==='Loja'?'selected':''}>Loja</option><option ${fd.tipo==='Cobertura'?'selected':''}>Cobertura</option><option ${fd.tipo==='Outro'?'selected':''}>Outro</option></select></div>
+      <div class="field form-full"><label>Tipo do imóvel</label><select id="f-tipo"><option ${fd.tipo==='Apartamento'?'selected':''}>Apartamento</option><option ${fd.tipo==='Casa'?'selected':''}>Casa</option><option ${fd.tipo==='Sala comercial'?'selected':''}>Sala comercial</option><option ${fd.tipo==='Loja'?'selected':''}>Loja</option><option ${fd.tipo==='Cobertura'?'selected':''}>Cobertura</option><option ${fd.tipo==='Terreno'?'selected':''}>Terreno</option><option ${fd.tipo==='Outro'?'selected':''}>Outro</option></select></div>
       <div class="field form-full"><label>Nome do imóvel</label><input id="f-nome" placeholder="Ex: Apto Centro, Casa da Praia, Sala Comercial..." value="${fd.nome||''}"></div>
       <div class="field form-full"><label>Endereço completo</label><input id="f-end" placeholder="Rua, número, bairro, cidade" value="${fd.endereco||''}"></div>
       <div class="field"><label>Número / Complemento</label><input id="f-comp" placeholder="Apto 101, Sala 5..." value="${fd.comp||''}"></div>
