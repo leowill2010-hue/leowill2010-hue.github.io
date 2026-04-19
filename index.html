@@ -801,7 +801,7 @@ function toSnake(o) {
     inquilino: o.inquilino, cpf: o.cpf, tel: o.tel, email: o.email,
     valor: o.valor||0, dia: o.dia||null, inicio: o.inicio||null, fim: o.fim||null,
     forma: o.forma, indice: o.indice, status: o.status||'pendente',
-    cond: o.cond||0, iptu: o.iptu||0
+    cond: o.cond||0, iptu: o.iptu||0, inscricao_iptu: o.inscricaoIptu||''
   };
 }
 
@@ -824,7 +824,7 @@ sbSelect('despesas', `user_id=eq.${uid}`)
       area: r.area, inquilino: r.inquilino, cpf: r.cpf, tel: r.tel, email: r.email,
       valor: r.valor||0, dia: r.dia||null, inicio: r.inicio, fim: r.fim,
       forma: r.forma, indice: r.indice, status: r.status||'pendente',
-      cond: r.cond||0, iptu: r.iptu||0
+      cond: r.cond||0, iptu: r.iptu||0, inscricaoIptu: r.inscricao_iptu||''
     }));
     db.pagamentos = (pagamentos||[]).map(r => ({
       id: r.id, imovelId: r.imovel_id, inquilino: r.inquilino,
@@ -1018,7 +1018,7 @@ function renderImoveis(filter) {
   document.getElementById('fc-vago').textContent=counts.vagos;
   document.getElementById('fc-atras').textContent=counts.atrasado;
 
-  let list = db.imoveis;
+  let list = [...db.imoveis].sort((a,b) => (a.dia||99) - (b.dia||99));
   if(filter==='ocupados') list=list.filter(i=>i.inquilino);
   if(filter==='vagos') list=list.filter(i=>!i.inquilino);
   if(filter==='atrasado') list=list.filter(i=>i.status==='atrasado');
@@ -2070,7 +2070,7 @@ function openModal(id) {
         <option ${v.status==='vago'?'selected':''} value="vago">Vago</option>
       </select></div>
       <div class="field"><label>Condomínio mensal (R$)</label><input id="m-cond" type="number" placeholder="0" value="${v.cond||''}"></div>
-      <div class="field"><label>IPTU mensal (R$)</label><input id="m-iptu" type="number" step="0.01" placeholder="0.00" value="${v.iptu||''}"></div>
+      <div class="field"><label>IPTU mensal (R$)</label><input id="m-iptu" type="number" step="0.01" placeholder="0.00" value="${v.iptu||''}"></div> <div class="field form-full"><label>Inscrição do IPTU</label><input id="m-inscricao-iptu" placeholder="Ex: 123456-7" value="${v.inscricaoIptu||''}"></div>
     </div>
 
    <div id="secao-despesas" style="display:${(v.status === 'vago') ? 'block' : 'none'}">
