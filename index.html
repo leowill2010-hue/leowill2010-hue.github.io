@@ -2103,8 +2103,13 @@ function openModal(id) {
         <button class="btn primary" onclick="salvarModal('${id||''}')">${im ? 'Salvar alterações' : 'Cadastrar imóvel'}</button>
       </div>
     </div>
-  `;
+ `;
+  setTimeout(() => {
+    const mod = db.despesas.find(d=>d.imovelId===currentEditId&&d.tipo==='iptu')?.iptuModalidade;
+    if (mod) renderIptuDatas();
+  }, 0);
 }
+function toggleVago() {
 function toggleVago() {
   const status = document.getElementById('m-status')?.value;
   const secao = document.getElementById('secao-despesas');
