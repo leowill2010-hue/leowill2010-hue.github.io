@@ -1176,7 +1176,7 @@ function renderStepContent() {
       <div class="field"><label>Forma de pagamento</label><select id="f-forma"><option>PIX</option><option>Boleto</option><option>TED</option><option>Depósito em conta</option></select></div>
       <div class="field"><label>Índice de reajuste anual</label><select id="f-indice"><option>IGPM</option><option>IPCA</option><option>INPC</option><option>Fixo</option></select></div>
       <div class="field"><label>Condomínio mensal (R$)</label><input id="f-cond" placeholder="0" value="${fd.cond||''}"></div>
-      <div class="field"><label>IPTU mensal (R$)</label><input id="f-iptu" placeholder="0" value="${fd.iptu||''}"></div>
+      <div class="field"><label>IPTU (R$)</label><input id="f-iptu" placeholder="0" value="${fd.iptu||''}"></div>
       <div class="form-full" style="display:flex;justify-content:space-between;gap:10px;margin-top:6px">
         <button class="btn" onclick="prevStep()">← Voltar</button>
         <button class="btn primary" onclick="nextStep()">Revisar e confirmar →</button>
@@ -2070,7 +2070,7 @@ function openModal(id) {
         <option ${v.status==='vago'?'selected':''} value="vago">Vago</option>
       </select></div>
       <div class="field"><label>Condomínio mensal (R$)</label><input id="m-cond" type="number" placeholder="0" value="${v.cond||''}"></div>
-      <div class="field"><label>IPTU mensal (R$)</label><input id="m-iptu" type="number" step="0.01" placeholder="0.00" value="${v.iptu||''}"></div> <div class="field form-full"><label>Inscrição do IPTU</label><input id="m-inscricao-iptu" placeholder="Ex: 123456-7" value="${v.inscricaoIptu||''}"></div>
+      <div class="field"><label>IPTU (R$)</label><input id="m-iptu" type="number" step="0.01" placeholder="0.00" value="${v.iptu||''}"></div> <div class="field form-full"><label>Inscrição do IPTU</label><input id="m-inscricao-iptu" placeholder="Ex: 123456-7" value="${v.inscricaoIptu||''}"></div>
     </div>
 
    <div id="secao-despesas" style="display:${(v.status === 'vago') ? 'block' : 'none'}">
