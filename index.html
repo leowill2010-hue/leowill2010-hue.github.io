@@ -1004,6 +1004,7 @@ function renderDashboard() {
 // IMÓVEIS
 // ============================
 let currentFilter = 'todos';
+  let currentEditId = null;
 function filterImoveis(filter, el) {
   currentFilter = filter;
   document.querySelectorAll('#imovel-filters .chip').forEach(c=>c.classList.remove('active'));
@@ -2010,6 +2011,7 @@ function doLogout() {
 // ============================
 function openModal(id) {
   const im = id ? db.imoveis.find(i=>i.id===id) : null;
+  currentEditId = id || null;
   const title = im ? 'Editar imóvel' : 'Novo imóvel';
   const v = im || {tipo:'Apartamento',endereco:'',comp:'',area:'',inquilino:'',cpf:'',tel:'',email:'',valor:'',dia:'',inicio:'',fim:'',forma:'PIX',indice:'IGPM',status:'pendente'};
 
@@ -2133,7 +2135,7 @@ function renderIptuDatas() {
   const parc = parseInt(document.getElementById('m-iptu-parc')?.value) || 1;
   const wrap = document.getElementById('iptu-datas-inputs');
   if (!wrap) return;
-  const existing = db.despesas.find(d=>d.tipo==='iptu')?.iptuDatas || [];
+  const existing = db.despesas.find(d=>d.imovelId===currentEditId&&d.tipo==='iptu')?.iptuDatas || [];
   wrap.innerHTML = Array.from({length: parc}, (_, i) => `
     <div style="display:flex;align-items:center;gap:8px">
       <span style="font-size:12px;color:var(--text-2);min-width:60px">Parcela ${i+1}</span>
